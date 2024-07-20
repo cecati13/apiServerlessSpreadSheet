@@ -6,7 +6,11 @@
         "request": "launch",
         "functionName": "function-cecati13",
         "gen": "GEN_2",
-        "entryPoint": "frontendC13"
+        "entryPoint": "frontendC13",
+        "revision": "1",
+        "testInput": "",
+        "region": "us-central1",
+        "runtime": "nodejs22"
       }
     ]
 }
