@@ -1,0 +1,21 @@
+{
+  "name": "nodejs-cloud-code-samples-functions-hello-world",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "Google Inc.",
+  "scripts": {
+    "start": "npx functions-framework --target=frontendC13 [--signature-type=http]"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.1.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "google-auth-library": "^9.11.0",
+    "google-spreadsheet": "^4.1.2"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.5"
+  }
+}
