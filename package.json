@@ -1,10 +1,10 @@
 {
-  "name": "nodejs-cloud-code-samples-functions-hello-world",
+  "name": "cloud-functions-cecati13",
   "version": "0.0.1",
   "type": "module",
   "private": true,
   "license": "Apache-2.0",
-  "author": "Google Inc.",
+  "author": "Damián Valenzuela",
   "scripts": {
     "start": "npx functions-framework --target=frontendC13 [--signature-type=http]"
   },
