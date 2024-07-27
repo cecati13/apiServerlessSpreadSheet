@@ -1,6 +1,6 @@
 import { request, response } from "express";
-import { service } from "./service.js";
-import { nameSheet } from "./models/namesheet.js";
+import { service } from "../services/front.service.js";
+import { nameSheet } from "../models/namesheet.js";
 
 export const courses = async (req = request, res = response) => {
   try {

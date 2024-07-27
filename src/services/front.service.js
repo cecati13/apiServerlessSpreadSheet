@@ -1,11 +1,11 @@
-import { getSpreedSheet } from "./spreedsheet.js";
-import { nameSheet } from "./models/namesheet.js";
+import { getSpreedSheet } from "../libs/spreedsheet.js";
+import { nameSheet } from "../models/namesheet.js";
 import {
   coursesModel,
   homePageModel,
   imageModel,
   questionsModel,
-} from "./models/sheetGoogle/index.js";
+} from "../models/sheetGoogle/index.js";
 
 const selectModel = (sheet, rows, size = undefined) => {
   switch (sheet) {

@@ -14,7 +14,7 @@ import {
 import { changeTokenUser, deleteUser, getUsers, updateRoleUser } from "../controller/userController.js";
 import { getFile, getListBlobs, deleteFile, getRegistrationRecord, postFileInformation } from "../controller/controlStudentsController.js";
 
-export const router = Router();
+const router = Router();
 
 router.get("/oauth",
     [decodeOauthToken, msalTokenVerify, userAllowedHandler],
@@ -74,3 +74,5 @@ router.post("/fileInformation",
     postFileInformation
 );
 //control Escolar
+
+export default router;
