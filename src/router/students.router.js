@@ -6,13 +6,14 @@ import {
   inscription,
   typeRegister,
 } from "../controller/students.controller.js";
-import { uploadDocs } from "../middleware/multer.js";
+//import { uploadDocs } from "../middleware/multer.js";
+import { formDataParser } from "../middleware/formDataParser.js";
 
 const router = Router();
-router.post("/typeRegister", typeRegister);
-router.post("/newStudent/dataGeneral", dataGeneral);
-router.post("/newStudent/inscription", inscription);
-router.post("/DBStudent", dbStudent);
-router.post("/files", uploadDocs, files);
+router.get("/typeRegister/:curp", typeRegister);
+router.post("/newStudent/dataGeneral",formDataParser, dataGeneral);
+router.post("/newStudent/inscription", formDataParser, inscription);
+router.post("/DBStudent", formDataParser, dbStudent);
+router.post("/files", formDataParser, files);
 
 export default router;

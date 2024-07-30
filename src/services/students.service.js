@@ -32,6 +32,7 @@ export default class Students {
   }
 
   isCURPValidate(obj) {
+    console.log(obj);
     const createCURP = generateCURP(obj);
     const userCURP = obj.curp;
     //ajustar en middlewares/validateCURP.js formatDate segun ambiente productivo
@@ -150,7 +151,7 @@ export default class Students {
     delete body.telefono;
     delete body.email;
     const data = await this.getDataDB(body.curp);
-    const newObj = { ...body, ...data,  fechaRegistro: datetime()};
+    const newObj = { ...body, ...data, fechaRegistro: datetime() };
     //Reassignmos timestampt  que viene del Registro de BD al actual
     const sucessfullyRegister = await this.inscription(newObj);
     return {
@@ -176,54 +177,42 @@ export default class Students {
       updated: updated,
     };
   }
-
+  /**
+   *
+   * @param {File[]} files - An Array of binary files to be uploaded
+   * @param {string} curp - Name of user
+   * @returns {Promise<Object[]>} - A promise that resolves to an array of results from the file uploads.
+   */
   async uploadStorageDocs(files, curp) {
-    let arrayURLs = [];
-    if (files.actaNacimiento) {
-      const url = await this.uploadFile(files.actaNacimiento, curp);
-      arrayURLs.push(url);
-    }
-    if (files.comprobanteDomicilio) {
-      const url = await this.uploadFile(files.comprobanteDomicilio, curp);
-      arrayURLs.push(url);
-    }
-    if (files.comprobanteEstudios) {
-      const url = await this.uploadFile(files.comprobanteEstudios, curp);
-      arrayURLs.push(url);
-    }
-    console.log(arrayURLs);
-    const URLs = {};
-    arrayURLs.forEach((element) => {
-      const arrayKey = Object.keys(element);
-      const key = arrayKey[0];
-      Object.defineProperty(URLs, key, {
-        value: element[key],
-        writable: true,
-        enumerable: true,
-        configurable: true,
-      });
-    });
-    console.log(URLs);
-    return URLs;
+    return await Promise.all(
+      files.map(async (file) => {
+        return await this.uploadFile(file, curp);
+      })
+    );
   }
 
+  /**
+   *
+   * @param {File} file - Binary file to be uploaded
+   * @param {string} curp - Name to process file upload
+   * @returns {Object} - Contains the original property of the file and the url for the database
+   */
   async uploadFile(file, curp) {
-    const name = file[0].fieldname;
-    const ext = file[0].mimetype.split("/")[1];
-    const nameFile = `${curp}-${file[0].fieldname}.${ext}`;
+    const ext = file.mimetype.split("/")[1];
+    const nameFile = `${curp}-${file.fieldname}.${ext}`;
+    const objInformationBlob = {
+      file: file,
+      name: nameFile,
+      container: "comprobantes",
+    };
+    await uploadBlobStorage(objInformationBlob);
     const url = {};
-    Object.defineProperty(url, name, {
+    Object.defineProperty(url, file.fieldname, {
       value: nameFile,
       enumerable: true,
       writable: true,
       configurable: true,
     });
-    const objInformationBlob = {
-      file: file[0],
-      name: nameFile,
-      container: "comprobantes",
-    };
-    await uploadBlobStorage(objInformationBlob);    
     return url;
   }
 }

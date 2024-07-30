@@ -1,11 +1,11 @@
-import { request } from "express";
+import { request, response } from "express";
 import Students from "../services/students.service.js";
 
 const service = new Students();
 
-export const typeRegister = async (req, res) => {
+export const typeRegister = async (req = request, res = response) => {
   try {
-    const { curp } = req.body;
+    const { curp } = req.params;
     const studentCURP = await service.findTypeRegister(curp);
     res.json(studentCURP);
   } catch (error) {
@@ -14,7 +14,7 @@ export const typeRegister = async (req, res) => {
   }
 };
 
-export const dataGeneral = async (req, res) => {
+export const dataGeneral = async (req = request, res = response) => {
   try {
     const { body } = req;
     const response = service.isCURPValidate(body);
@@ -24,11 +24,15 @@ export const dataGeneral = async (req, res) => {
   }
 };
 
-export const inscription = async (req, res) => {
+export const inscription = async (req = request, res = response) => {
   try {
-    const { body } = req;
-    console.log(req.files);
-    const dataCompleted = await service.toCompleteInformationBody(body);
+    const URLs = await service.uploadStorageDocs(req.files, req.body.curp);
+    URLs.forEach((item) => {
+      const [key] = Object.keys(item);
+      const value = { [key]: item[key] };
+      req.body = { ...req.body, ...value };
+    });
+    const dataCompleted = await service.toCompleteInformationBody(req.body);
     const inscriptionData = await service.addInscriptionNewStudent(
       dataCompleted
     );
@@ -39,28 +43,25 @@ export const inscription = async (req, res) => {
   }
 };
 
-export const dbStudent = async (req, res) => {
+export const dbStudent = async (req = request, res = response) => {
   try {
+    console.log(req.files);
+    console.log(req.body);
     const { body } = req;
-    const update = await service.addInscriptionDBStudent(body);
+    res.json(body);
+    //const update = await service.addInscriptionDBStudent(body);
     //formato respuesta: {status: boolean, update: boolean, matricula: string, fechaRegistro: string}
-    res.json(update);
+    //res.json(update);
   } catch (error) {
     console.error(error);
     console.log("error catch en router /DBStudent");
   }
 };
 
-export const files = async (req = request, res) => {
+export const files = async (req = request, res = response) => {
   try {
-    console.log("-------------------");
-    console.log(req.file);
-    console.log(req.files);
-    console.log("??????????");
-    console.log(req.body);
-    res.json({...req.body, ...req.files});
-    //const URLs = await service.uploadStorageDocs(req.files, req.body.curp);
-    //res.json(URLs);
+    const URLs = await service.uploadStorageDocs(req.files, req.body.curp);
+    res.json(URLs);
   } catch (error) {
     console.error(error);
   }
