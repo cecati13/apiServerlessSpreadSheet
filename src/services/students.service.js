@@ -32,7 +32,6 @@ export default class Students {
   }
 
   isCURPValidate(obj) {
-    console.log(obj);
     const createCURP = generateCURP(obj);
     const userCURP = obj.curp;
     //ajustar en middlewares/validateCURP.js formatDate segun ambiente productivo
@@ -134,6 +133,18 @@ export default class Students {
     return res;
   }
 
+  /**
+   * 
+   * @param {object} body - Contains student information, selected course. "update": boolean (optional), and "indexR" field for the DB
+   * @param {boolean} body.update - boolean (optional)
+   * @param {string} body.indexR - string. DB SpreedSheet search field   * 
+   * @returns {{
+   *  status: boolean, 
+   *  update: boolean, 
+   *  matricula: string, 
+   *  fechaRegistro: string
+   * }}  - Inscription Completed
+   */
   async addInscriptionDBStudent(body) {
     if (body.update) {
       const bodyWithDatetime = {
