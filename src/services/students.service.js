@@ -11,6 +11,7 @@ import { datetime } from "../utils/date.js";
 import { nameSheet } from "../models/namesheet.js";
 const { sheetDatabase, sheetInscriptions, sheetNumberControl } = nameSheet;
 import { JSONResponse, JSONgetDB } from "../models/JSONResponse.js";
+import { nameContainer } from "../models/containerAzure.js";
 
 import {
   getSpreedSheet,
@@ -214,7 +215,7 @@ export default class Students {
     const objInformationBlob = {
       file: file,
       name: nameFile,
-      container: "comprobantes",
+      container: nameContainer.proof,
     };
     await uploadBlobStorage(objInformationBlob);
     const url = {};

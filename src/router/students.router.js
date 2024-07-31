@@ -6,8 +6,7 @@ import {
   inscription,
   typeRegister,
 } from "../controller/students.controller.js";
-//import { uploadDocs } from "../middleware/multer.js";
-import { formDataParser } from "../middleware/formDataParser.js";
+import { formDataParser } from "../middlewares/index.js";
 
 const router = Router();
 router.get("/typeRegister/:curp", typeRegister);

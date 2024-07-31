@@ -1,5 +1,4 @@
 export function logErrors(err, req, res, next) {
-  console.log("logs Errors");
   console.log(err);
   next(err);
 }

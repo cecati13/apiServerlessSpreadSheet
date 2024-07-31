@@ -1,6 +1,6 @@
 import { BlobServiceClient } from "@azure/storage-blob";
 import { notFound } from "@hapi/boom";
-import { config } from "../config.js";
+import { config } from "../config/index.js";
 
 const blobServices = BlobServiceClient.fromConnectionString(
   config.azureStorageConnection
@@ -20,6 +20,14 @@ export async function listBlobs(obj) {
   return list;
 }
 
+/**
+ * 
+ * @param {Object} obj - Configuration for upload
+ * @param {Buffer} obj.file - File on format buffer
+ * @param {String} obj.name - Name to save
+ * @param {String} obj.container - Name of container
+ * @returns {String} Url of Blob
+ */
 export async function uploadBlobStorage(obj) {
   //obj = file, name, container
   try {

@@ -29,7 +29,7 @@ export const formDataParser = (req, res, next) => {
   });
 
   bb.on("file", (fieldname, file, info) => {
-    const { mimeType, filename } = info;
+    const { mimeType, filename, encoding } = info;
     if (!allowedTypes.includes(mimeType)) {
       file.resume();
       return next(new Error("FILES_TYPE_ERROR"));
@@ -55,6 +55,8 @@ export const formDataParser = (req, res, next) => {
             }
             files.push({
               fieldname,
+              originalname: filename,
+              encoding: encoding,
               mimetype: mimeType,
               buffer,
               size,
@@ -85,7 +87,6 @@ export const formDataParser = (req, res, next) => {
   });
 
   bb.on("error", (err) => {
-    console.error("Busboy error:", err);
     next(err);
   });
 

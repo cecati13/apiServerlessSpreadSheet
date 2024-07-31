@@ -18,7 +18,7 @@ export const getSpreedSheet = async (sheetName) => {
     const sheet = await spreedsheetGoogle(sheetName);
     return await sheet.getRows();
   } catch (error) {
-    console.log("Error en getSpreedSheat");
+    console.log(error)
   }
 };
 

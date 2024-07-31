@@ -1,6 +1,6 @@
 import { JWT } from "google-auth-library";
 import { GoogleSpreadsheet } from "google-spreadsheet";
-import { config } from "../config.js";
+import { config } from "../config/index.js";
 import { nameSheet } from "../models/namesheet.js";
 
 const formattedPrivateKey = config.privateKey.replace(/\\n/g, "\n");

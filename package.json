@@ -13,14 +13,18 @@
     "@google-cloud/functions-framework": "^3.1.0",
     "@hapi/boom": "^10.0.1",
     "busboy": "^1.6.0",
-    "cors": "^2.8.5",
+    "cookie-parser": "^1.4.6",
     "curp": "^1.2.3",
     "express": "^4.19.2",
     "express-status-monitor": "^1.3.4",
-    "formidable": "^3.5.1",
     "google-auth-library": "^9.11.0",
     "google-spreadsheet": "^4.1.2",
-    "passport": "^0.7.0"
+    "jsonwebtoken": "^9.0.2",
+    "jwt-decode": "^4.0.0",
+    "mysql2": "^3.11.0",
+    "passport": "^0.7.0",
+    "passport-azure-ad": "^4.3.5",
+    "passport-jwt": "^4.0.1"
   },
   "devDependencies": {
     "dotenv": "^16.4.5"
