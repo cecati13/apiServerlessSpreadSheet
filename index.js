@@ -21,4 +21,4 @@ app.use(logErrors);
 app.use(boomErrorHandler);
 app.use(errorHandler);
 
-http("frontendC13", app);
+http("api-C13", app);

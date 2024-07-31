@@ -1,6 +1,6 @@
 {
   "name": "cloud-functions-cecati13",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "private": true,
   "license": "Apache-2.0",
