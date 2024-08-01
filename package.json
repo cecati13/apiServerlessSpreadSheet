@@ -6,7 +6,7 @@
   "license": "Apache-2.0",
   "author": "Damián Valenzuela",
   "scripts": {
-    "start": "npx functions-framework --target=frontendC13 [--signature-type=http]"
+    "start": "npx functions-framework --target=api-C13 [--signature-type=http]"
   },
   "dependencies": {
     "@azure/storage-blob": "^12.24.0",
