@@ -1,7 +1,7 @@
 const allowedOrigins = [
   "https://cecati13.edu.mx",
   //dev
-  "https://dvnegrete.github.io/",
+  "https://dvnegrete.github.io",
   "http://localhost:5501",
   undefined,
   //dev
