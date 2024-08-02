@@ -1,9 +1,10 @@
 import CURP from "curp";
+import { config } from "../config";
 
 export function generateCURP(obj) {
   const date = new Date(obj.fechaNacimiento);
   const formatDate = (date) => {
-    const dateValueCorrection = parseInt(1, 10);
+    const dateValueCorrection = parseInt(config.dateForCurp, 10);
     //en App Engine Produccion, no sumar nada en el día valor = 0
     //en ambiente local sumar 1. para que funcione.
     //let formatted_date = date.getDate() + "-" + (date.getMonth()+ 1) + "-" + date.getFullYear()

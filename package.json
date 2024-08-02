@@ -1,12 +1,12 @@
 {
   "name": "cloud-functions-cecati13",
-  "version": "0.0.2",
+  "version": "1.0.1",
   "type": "module",
   "private": true,
   "license": "Apache-2.0",
   "author": "Damián Valenzuela",
   "scripts": {
-    "start": "npx functions-framework --target=api-C13 [--signature-type=http]"
+    "start": "npx functions-framework --target=APIv2 [--signature-type=http]"
   },
   "dependencies": {
     "@azure/storage-blob": "^12.24.0",
@@ -16,7 +16,6 @@
     "cookie-parser": "^1.4.6",
     "curp": "^1.2.3",
     "express": "^4.19.2",
-    "express-status-monitor": "^1.3.4",
     "google-auth-library": "^9.11.0",
     "google-spreadsheet": "^4.1.2",
     "jsonwebtoken": "^9.0.2",
@@ -27,6 +26,7 @@
     "passport-jwt": "^4.0.1"
   },
   "devDependencies": {
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "express-status-monitor": "^1.3.4"
   }
 }
