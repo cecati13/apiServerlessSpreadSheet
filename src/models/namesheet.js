@@ -7,14 +7,14 @@ export const nameSheet = {
   /**
    * DataBase temp PROD
    */
-  // sheetInscriptions: "preinscripciones",
-  // sheetNumberControl: "matricula",
-  // sheetDatabase: "database",
+  sheetInscriptions: "preinscripciones",
+  sheetNumberControl: "matricula",
+  sheetDatabase: "database",
 
   /**
    * DataBase temp DEV (Pruebas)
    */
-  sheetNumberControl: "pruebaMatricula",
-  sheetInscriptions: "pruebaPreinscripciones",
-  sheetDatabase: "databasePruebas",
+  // sheetNumberControl: "pruebaMatricula",
+  // sheetInscriptions: "pruebaPreinscripciones",
+  // sheetDatabase: "databasePruebas",
 };
