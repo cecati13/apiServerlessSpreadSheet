@@ -1,5 +1,5 @@
 import CURP from "curp";
-import { config } from "../config";
+import { config } from "../config/index.js";
 
 export function generateCURP(obj) {
   const date = new Date(obj.fechaNacimiento);
