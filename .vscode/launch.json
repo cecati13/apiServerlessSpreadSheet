@@ -4,12 +4,12 @@
         "name": "Deploy Cloud Function",
         "type": "cloudcode.cloudfunctions",
         "request": "launch",
-        "functionName": "function-cecati13",
+        "functionName": "API-V2",
         "gen": "GEN_2",
-        "entryPoint": "frontendC13",
+        "entryPoint": "APIv2",
         "revision": "1",
         "testInput": "",
-        "region": "us-central1",
+        "region": "us-east1",
         "runtime": "nodejs22"
       }
     ]
