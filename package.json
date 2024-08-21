@@ -23,7 +23,8 @@
     "mysql2": "^3.11.0",
     "passport": "^0.7.0",
     "passport-azure-ad": "^4.3.5",
-    "passport-jwt": "^4.0.1"
+    "passport-jwt": "^4.0.1",
+    "sequelize": "^6.37.3"
   },
   "devDependencies": {
     "dotenv": "^16.4.5",

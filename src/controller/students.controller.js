@@ -1,6 +1,7 @@
 import { request, response } from "express";
 import Students from "../services/students.service.js";
 import { mergeUrlsAndBody } from "../utils/mergeUrlsAndBody.js";
+import { sequelize } from "../libs/sequelize.js";
 
 const service = new Students();
 
@@ -55,6 +56,16 @@ export const files = async (req = request, res = response, next) => {
   try {
     const URLs = await service.uploadStorageDocs(req.files, req.body.curp);
     res.json(URLs);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const nuevaConexion = async (req = request, res = response, next) => {
+  try {
+    //const query = `SELECT * FROM pruebas`
+    const data = await sequelize.query(query)
+    res.json(data)
   } catch (error) {
     next(error);
   }
