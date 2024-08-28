@@ -54,12 +54,9 @@ export const EstudiantesSchema = {
     type: DataTypes.STRING,
   },
   telefono: {
-    allowNull: false,
     type: DataTypes.STRING,
   },
   email: {
-    allowNull: false,
-    unique: true,
     type: DataTypes.STRING,
   },
   nacionalidad: {
@@ -88,7 +85,6 @@ export const EstudiantesSchema = {
   },
   escolaridad: {
     type: DataTypes.STRING,
-    allowNull: false,
   },
   escolaridad_comprobante: {
     type: DataTypes.STRING,
