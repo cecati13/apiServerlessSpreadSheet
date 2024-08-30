@@ -2,14 +2,37 @@ import { request, response } from "express";
 import Students from "../services/students.service.js";
 import { mergeUrlsAndBody } from "../utils/mergeUrlsAndBody.js";
 import { sequelize } from "../libs/sequelize.js";
+import {
+  hideCharactersEmail,
+  hideCharactersPhone,
+} from "../utils/hideCharacters.js";
 
 const service = new Students();
 
 export const typeRegister = async (req = request, res = response, next) => {
   try {
     const { curp } = req.params;
-    const studentCURP = await service.findTypeRegister(curp);
-    res.json(studentCURP);
+    const student = await service.findTypeRegister(curp);
+    if (student === null) {
+      res.json({ error: "CURP" });
+    } else {
+      const email =
+        student.email === null || student.email === undefined
+          ? null
+          : hideCharactersEmail(student.email);
+      const telefono =
+        student.telefono === null || student.telefono === undefined
+          ? null
+          : hideCharactersPhone(student.telefono);
+      res.json({
+        curp: student.curp,
+        a_paterno: student.apellido_paterno,
+        a_materno: student.apellido_materno,
+        nombre: student.nombre,
+        email,
+        telefono,
+      });
+    }
   } catch (error) {
     next(error);
   }
@@ -64,8 +87,8 @@ export const files = async (req = request, res = response, next) => {
 export const nuevaConexion = async (req = request, res = response, next) => {
   try {
     //const query = `SELECT * FROM pruebas`
-    const data = await sequelize.query(query)
-    res.json(data)
+    const data = await sequelize.query(query);
+    res.json(data);
   } catch (error) {
     next(error);
   }

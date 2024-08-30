@@ -20,6 +20,7 @@ import {
 } from "../libs/spreedsheet.js";
 import { uploadBlobStorage } from "../libs/blobsAzure.js";
 import { areHideCharacters } from "../utils/hideCharacters.js";
+import { Estudiantes } from "../database/models/estudiantes.model.js";
 
 export default class Students {
   constructor() {}
@@ -84,12 +85,7 @@ export default class Students {
   }
 
   async findForCurp(stringCURP) {
-    const rows = await getSpreedSheet(sheetDatabase);
-    const data = rows.filter((column) => {
-      const value = column.get("curp").toUpperCase();
-      return value.includes(stringCURP);
-    });
-    return data.length > 0 ? JSONResponse(data) : { error: "CURP" };
+    return await Estudiantes.findOne({ where: { curp: stringCURP } });
   }
 
   async addInscriptionNewStudent(infoInscription) {
@@ -135,14 +131,14 @@ export default class Students {
   }
 
   /**
-   * 
+   *
    * @param {object} body - Contains student information, selected course. "update": boolean (optional), and "indexR" field for the DB
    * @param {boolean} body.update - boolean (optional)
-   * @param {string} body.indexR - string. DB SpreedSheet search field   * 
+   * @param {string} body.indexR - string. DB SpreedSheet search field   *
    * @returns {{
-   *  status: boolean, 
-   *  update: boolean, 
-   *  matricula: string, 
+   *  status: boolean,
+   *  update: boolean,
+   *  matricula: string,
    *  fechaRegistro: string
    * }}  - Inscription Completed
    */
