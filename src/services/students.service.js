@@ -10,17 +10,19 @@ import { datetime } from "../utils/date.js";
 
 import { nameSheet } from "../models/namesheet.js";
 const { sheetDatabase, sheetInscriptions, sheetNumberControl } = nameSheet;
-import { JSONResponse, JSONgetDB } from "../models/JSONResponse.js";
 import { nameContainer } from "../models/containerAzure.js";
 
+import { database } from "../database/mysql.js";
+import { Estudiantes } from "../database/models/estudiantes.model.js";
+import { Domicilios } from "../database/models/domicilios.model.js";
 import {
-  getSpreedSheet,
-  postSpreedSheet,
-  updateSpreedSheet,
-} from "../libs/spreedsheet.js";
+  getStudentQuery,
+  typeRegisterQuery,
+} from "../queries/studentsQueries.js";
+
+import { getSpreedSheet, postSpreedSheet } from "../libs/spreedsheet.js";
 import { uploadBlobStorage } from "../libs/blobsAzure.js";
 import { areHideCharacters } from "../utils/hideCharacters.js";
-import { Estudiantes } from "../database/models/estudiantes.model.js";
 
 export default class Students {
   constructor() {}
@@ -85,7 +87,9 @@ export default class Students {
   }
 
   async findForCurp(stringCURP) {
-    return await Estudiantes.findOne({ where: { curp: stringCURP } });
+    const [results] = await database.query(typeRegisterQuery(stringCURP));
+    return results[0];
+    //return await Estudiantes.findOne({ where: { curp: stringCURP } });
   }
 
   async addInscriptionNewStudent(infoInscription) {
@@ -106,7 +110,10 @@ export default class Students {
   }
 
   async inscription(obj) {
-    const newObj = this.insertSheet(obj, sheetInscriptions);
+    const newObj = this.insertSheet(
+      { ...obj, fechaRegistro: datetime() },
+      sheetInscriptions
+    );
     await postSpreedSheet(newObj);
     //sucessfulyRegister indica si se hizo el registro en SpreedSheet
     const sucessfullyRegister = this.verifyLastRegistration(obj);
@@ -124,8 +131,7 @@ export default class Students {
     const lastInscriptionCurp = rows[countRows - 1].get("curp");
     const res = {
       status: lastInscriptionCurp === infoInscription.curp,
-      matricula: infoInscription.matricula,
-      fechaRegistro: infoInscription.fechaRegistro,
+      matricula: infoInscription.numero_matricula,
     };
     return res;
   }
@@ -144,47 +150,113 @@ export default class Students {
    */
   async addInscriptionDBStudent(body) {
     if (body.update) {
-      const bodyWithDatetime = {
-        ...body,
-        fechaRegistro: datetime(),
-      };
-      const updated = await this.updateDBStudent(bodyWithDatetime);
+      const updated = await this.updateDBStudent(body);
       //confirmamos que se actualizo la informacion
-      body.update = updated.updated;
+      body.update = updated;
     }
-    delete body.matricula;
-    delete body.a_paterno;
-    delete body.a_materno;
-    delete body.nombre;
-    delete body.telefono;
-    delete body.email;
     const data = await this.getDataDB(body.curp);
-    const newObj = { ...body, ...data, fechaRegistro: datetime() };
+    const newObj = { ...body, ...data };
     //Reassignmos timestampt  que viene del Registro de BD al actual
     const sucessfullyRegister = await this.inscription(newObj);
     return {
       ...sucessfullyRegister,
+      //temporal. Hasta el uso de la Tabla Inscripciones
+      fechaRegistro: datetime(),
       update: newObj.update,
     };
   }
 
   async getDataDB(stringCURP) {
-    const rows = await getSpreedSheet(sheetDatabase);
-    const data = rows.filter((column) => {
-      const value = column.get("curp").toUpperCase();
-      return value.includes(stringCURP);
-    });
-    return JSONgetDB(data);
+    const [results] = await database.query(getStudentQuery(stringCURP));
+    return results[0];
+    //return await Estudiantes.findOne({ where: { curp: stringCURP } });
   }
 
   async updateDBStudent(obj) {
-    const filterPhoneAndNumber = areHideCharacters(obj);
-    const newObj = this.insertSheet(filterPhoneAndNumber, sheetDatabase);
-    const updated = await updateSpreedSheet(newObj);
+    const cleanObj = areHideCharacters(obj);
+    const updates = [];
+    const updateStudentsValues = {};
+    const updateAdressValues = {};
+
+    /**
+     * Pendiente generar funciones para separar codigo
+     */
+    Object.keys(cleanObj).forEach((key) => {
+      if (
+        [
+          "rfc",
+          "telefono",
+          "email",
+          "padecimiento",
+          "discapacidad",
+          "escolaridad",
+          "escolaridad_comprobante",
+          "tipo_sangre",
+        ].includes(key)
+      ) {
+        updateStudentsValues[key] = cleanObj[key];
+      } else if (
+        [
+          "calle",
+          "numero",
+          "colonia",
+          "municipio",
+          "cp",
+          "estado",
+          "comprobanteDomicilio",
+        ].includes(key)
+      ) {
+        updateAdressValues[key] = cleanObj[key];
+      }
+    });
+    /**
+     * Falta verificar todos los nombres de los campos que pueden llegar a ser actualizados
+     * pendientes los datos de escolaridad
+     */
+    if (Object.keys(updateStudentsValues).length > 0) {
+      const [countStudent] = await Estudiantes.update(updateStudentsValues, {
+        where: { curp: obj.curp },
+        limit: 1,
+        validate: true,
+      });
+      updates.push(countStudent);
+    }
+
+    if (Object.keys(updateAdressValues).length > 0) {
+      const { domicilio_id } = await Estudiantes.findOne({
+        where: { curp: cleanObj.curp },
+        attributes: ["domicilio_id"],
+      });
+      if (updateAdressValues.municipio) {
+        Object.defineProperty(updateAdressValues, "municipio_alcaldia", {
+          value: cleanObj.municipio,
+          configurable: true,
+          enumerable: true,
+          writable: true,
+        });
+      }
+      if (updateAdressValues.comprobanteDomicilio) {
+        Object.defineProperty(updateAdressValues, "comprobante_domicilio", {
+          value: cleanObj.comprobanteDomicilio,
+          configurable: true,
+          enumerable: true,
+          writable: true,
+        });
+      }
+
+      const [countAdress] = await Domicilios.update(updateAdressValues, {
+        where: { id: domicilio_id },
+        limit: 1,
+        validate: true,
+        fields: Object.keys(updateAdressValues),
+      });
+      updates.push(countAdress);
+    }
     return {
-      updated: updated,
+      updated: updates.every((item) => item === 1),
     };
   }
+
   /**
    *
    * @param {File[]} files - An Array of binary files to be uploaded

@@ -25,10 +25,7 @@ export const typeRegister = async (req = request, res = response, next) => {
           ? null
           : hideCharactersPhone(student.telefono);
       res.json({
-        curp: student.curp,
-        a_paterno: student.apellido_paterno,
-        a_materno: student.apellido_materno,
-        nombre: student.nombre,
+        ...student,
         email,
         telefono,
       });
@@ -64,10 +61,13 @@ export const inscription = async (req = request, res = response, next) => {
 
 export const dbStudent = async (req = request, res = response, next) => {
   try {
-    if (req.files.length > 0) {
-      const URLs = await service.uploadStorageDocs(req.files, req.body.curp);
-      req.body = mergeUrlsAndBody(URLs, req.body);
-    }
+    /**
+     * Descomentar cuando se hagan pruebas donde se puedan afectar los registros fake, para las pruebas con LA BD
+     */
+    // if (req.files.length > 0) {
+    //   const URLs = await service.uploadStorageDocs(req.files, req.body.curp);
+    //   req.body = mergeUrlsAndBody(URLs, req.body);
+    // }
     const update = await service.addInscriptionDBStudent(req.body);
     res.json(update);
   } catch (error) {
