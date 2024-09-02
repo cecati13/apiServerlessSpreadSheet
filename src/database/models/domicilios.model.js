@@ -52,4 +52,14 @@ export class Domicilios extends Model {
       timestamps: true,
     };
   }
+
+  static fieldsUpdateForStudent = [
+    "calle",
+    "numero",
+    "colonia",
+    "municipio",
+    "cp",
+    "estado",
+    "comprobanteDomicilio",
+  ];
 }

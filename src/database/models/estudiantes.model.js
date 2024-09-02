@@ -142,4 +142,16 @@ export class Estudiantes extends Model {
       timestamps: true,
     };
   }
+
+  static fieldsUpdateForStudent = [
+    "rfc",
+    "telefono",
+    "telefono",
+    "email",
+    "padecimiento",
+    "discapacidad",
+    "escolaridad",
+    "escolaridad_comprobante",
+    "tipo_sangre",
+  ];
 }

@@ -117,6 +117,7 @@ export default class Students {
     await postSpreedSheet(newObj);
     //sucessfulyRegister indica si se hizo el registro en SpreedSheet
     const sucessfullyRegister = this.verifyLastRegistration(obj);
+    //mandar correo electronico de confirmación de inscripcion.
     return sucessfullyRegister;
   }
 
@@ -156,7 +157,6 @@ export default class Students {
     }
     const data = await this.getDataDB(body.curp);
     const newObj = { ...body, ...data };
-    //Reassignmos timestampt  que viene del Registro de BD al actual
     const sucessfullyRegister = await this.inscription(newObj);
     return {
       ...sucessfullyRegister,
@@ -169,7 +169,13 @@ export default class Students {
   async getDataDB(stringCURP) {
     const [results] = await database.query(getStudentQuery(stringCURP));
     return results[0];
-    //return await Estudiantes.findOne({ where: { curp: stringCURP } });
+  }
+
+  async getStudentDB(stringCURP) {
+    return await Estudiantes.findOne({
+      where: { curp: stringCURP },
+      attributes: ["domicilio_id"],
+    });
   }
 
   async updateDBStudent(obj) {
@@ -182,30 +188,9 @@ export default class Students {
      * Pendiente generar funciones para separar codigo
      */
     Object.keys(cleanObj).forEach((key) => {
-      if (
-        [
-          "rfc",
-          "telefono",
-          "email",
-          "padecimiento",
-          "discapacidad",
-          "escolaridad",
-          "escolaridad_comprobante",
-          "tipo_sangre",
-        ].includes(key)
-      ) {
+      if (Estudiantes.fieldsUpdateForStudent.includes(key)) {
         updateStudentsValues[key] = cleanObj[key];
-      } else if (
-        [
-          "calle",
-          "numero",
-          "colonia",
-          "municipio",
-          "cp",
-          "estado",
-          "comprobanteDomicilio",
-        ].includes(key)
-      ) {
+      } else if (Domicilios.fieldsUpdateForStudent.includes(key)) {
         updateAdressValues[key] = cleanObj[key];
       }
     });
@@ -223,38 +208,39 @@ export default class Students {
     }
 
     if (Object.keys(updateAdressValues).length > 0) {
-      const { domicilio_id } = await Estudiantes.findOne({
-        where: { curp: cleanObj.curp },
-        attributes: ["domicilio_id"],
-      });
-      if (updateAdressValues.municipio) {
-        Object.defineProperty(updateAdressValues, "municipio_alcaldia", {
-          value: cleanObj.municipio,
-          configurable: true,
-          enumerable: true,
-          writable: true,
-        });
-      }
-      if (updateAdressValues.comprobanteDomicilio) {
-        Object.defineProperty(updateAdressValues, "comprobante_domicilio", {
-          value: cleanObj.comprobanteDomicilio,
-          configurable: true,
-          enumerable: true,
-          writable: true,
-        });
-      }
-
-      const [countAdress] = await Domicilios.update(updateAdressValues, {
+      const { domicilio_id } = await this.getStudentDB(cleanObj.curp);
+      const cleanUpdateAddress = this.setNameAddress(cleanObj, updateAdressValues);
+      const [countAdress] = await Domicilios.update(cleanUpdateAddress, {
         where: { id: domicilio_id },
         limit: 1,
         validate: true,
-        fields: Object.keys(updateAdressValues),
+        fields: Object.keys(cleanUpdateAddress),
       });
       updates.push(countAdress);
     }
     return {
       updated: updates.every((item) => item === 1),
     };
+  }
+
+  setNameAddress(inscriptionData, updatableValues) {
+    if (updatableValues.municipio) {
+      Object.defineProperty(updatableValues, "municipio_alcaldia", {
+        value: inscriptionData.municipio,
+        configurable: true,
+        enumerable: true,
+        writable: true,
+      });
+    }
+    if (updatableValues.comprobanteDomicilio) {
+      Object.defineProperty(updatableValues, "comprobante_domicilio", {
+        value: inscriptionData.comprobanteDomicilio,
+        configurable: true,
+        enumerable: true,
+        writable: true,
+      });
+    }
+    return updatableValues;
   }
 
   /**
