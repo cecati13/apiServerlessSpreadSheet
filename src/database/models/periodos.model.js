@@ -32,6 +32,7 @@ export class Periodos extends Model {
       tableName: tablesDB.periods,
       modelName: "Periodos",
       timestamps: true,
+      timezone: '-06:00'
     };
   }
 }

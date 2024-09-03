@@ -42,6 +42,7 @@ export class StatusPagos extends Model {
       tableName: tablesDB.paymentStatus,
       modelName: "StatusPagos",
       timestamps: true,
+      timezone: '-06:00'
     };
   }
 }

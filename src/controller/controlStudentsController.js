@@ -7,9 +7,11 @@ import {
   uploadFiPdf,
 } from "../services/files.service.js";
 import Students from "../services/students.service.js";
+import ControlStudents from "../services/controlStudents.service.js";
 import { nameContainer } from "../models/containerAzure.js";
 
 const serviceStudents = new Students();
+const controlStudents = new ControlStudents();
 
 //query parameter "user" para la curp. Example: /listBlobs/comprobantes?CURPSTUDENT
 //container = "informacion" or "comprobantes"
@@ -40,6 +42,25 @@ export const getRegistrationRecord = async (
       res.json({ studentRecord });
     } else {
       res.json({ msg: "not User" });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteTableId = async (
+  req = request,
+  res = response,
+  next
+) => {
+  try {
+    const { table } = req.params;
+    const { id } = req.query;
+    if (table !== undefined && id !== undefined) {
+      const statusID = await controlStudents.deleteId(table, id);
+      res.json({ statusID });
+    } else {
+      res.json({ msg: "Undefined Values" });
     }
   } catch (error) {
     next(error);

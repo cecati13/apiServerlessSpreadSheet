@@ -45,6 +45,7 @@ export class Users extends Model {
       tableName: tablesDB.users,
       modelName: "Users",
       timestamps: true,
+      timezone: '-06:00'
     };
   }
 }

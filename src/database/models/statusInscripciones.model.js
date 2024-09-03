@@ -42,6 +42,7 @@ export class StatusInscripciones extends Model {
       tableName: tablesDB.inscriptionStatus,
       modelName: "StatusInscripciones",
       timestamps: true,
+      timezone: '-06:00'
     };
   }
 }

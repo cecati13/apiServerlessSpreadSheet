@@ -31,6 +31,7 @@ export class Especialidades extends Model {
       tableName: tablesDB.specialties,
       modelName: "Especialidades",
       timestamps: true,
+      timezone: '-06:00'
     };
   }
 }

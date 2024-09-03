@@ -74,6 +74,7 @@ export class BienesServicios extends Model {
       tableName: tablesDB.belongings,
       modelName: "BienesServicios",
       timestamps: true,
+      timezone: '-06:00'
     };
   }
 }

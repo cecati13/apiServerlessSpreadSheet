@@ -56,6 +56,7 @@ export class Socioeconomicos extends Model {
       tableName: tablesDB.socioeconomic,
       modelName: "Socioeconomicos",
       timestamps: true,
+      timezone: '-06:00'
     };
   }
 }

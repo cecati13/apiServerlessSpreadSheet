@@ -52,6 +52,7 @@ export class ServiciosMedicos extends Model {
       tableName: tablesDB.medicalServices,
       modelName: "ServiciosMedicos",
       timestamps: true,
+      timezone: '-06:00'
     };
   }
 }

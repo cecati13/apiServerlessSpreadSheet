@@ -140,6 +140,7 @@ export class Estudiantes extends Model {
       tableName: tablesDB.students,
       modelName: "Estudiantes",
       timestamps: true,
+      timezone: '-06:00'
     };
   }
 
@@ -154,4 +155,32 @@ export class Estudiantes extends Model {
     "escolaridad_comprobante",
     "tipo_sangre",
   ];
+
+  static conexionFields(obj, matricula, domicilio){
+    //Create Empleos, Medio-Informacion and Socioeconomico before Estudiantes.
+    return {
+      matricula_id: matricula.id,
+      curp: obj.curp,
+      apellido_paterno: obj.a_paterno,
+      apellido_materno: obj.a_materno,
+      nombre: obj.nombre,
+      fecha_nacimiento: obj.fechaNacimiento,
+      domicilio_id: domicilio.id,
+      rfc: obj.rfc,
+      sexo: obj.genero,
+      telefono: obj.telefono,
+      email: obj.email,
+      nacionalidad: obj.nacionalidad,
+      padecimiento: obj.padecimiento,
+      discapacidad: obj.discapacidad,
+      pais_nacimiento: obj.paisNacimiento,
+      empleos_id: null,
+      escolaridad: obj.escolaridad,
+      escolaridad_comprobante: obj.comprobanteEstudios,
+      tipo_sangre: obj.sangre,
+      medio_informacion_id: null,
+      socioeconomico_id: null,
+      acta_nacimiento: obj.actaNacimiento,
+    }
+  }
 }

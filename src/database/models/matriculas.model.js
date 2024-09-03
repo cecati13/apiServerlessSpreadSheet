@@ -32,6 +32,14 @@ export class Matriculas extends Model {
       tableName: tablesDB.numberControls,
       modelName: "Matriculas",
       timestamps: true,
+      timezone: '-06:00'
     };
+  }
+
+  static conexionFields(obj){
+    return {
+      numero_matricula: obj.matricula,
+      annio: obj.annio,
+    }
   }
 }

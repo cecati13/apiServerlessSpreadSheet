@@ -52,6 +52,7 @@ export class MotivosEleccion extends Model {
       tableName: tablesDB.reasonCourseChoises,
       modelName: "MotivosEleccion",
       timestamps: true,
+      timezone: '-06:00'
     };
   }
 }

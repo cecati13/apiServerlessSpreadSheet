@@ -9,7 +9,7 @@ import {
 import { datetime } from "../utils/date.js";
 
 import { nameSheet } from "../models/namesheet.js";
-const { sheetDatabase, sheetInscriptions, sheetNumberControl } = nameSheet;
+const { sheetInscriptions, sheetNumberControl } = nameSheet;
 import { nameContainer } from "../models/containerAzure.js";
 
 import { database } from "../database/mysql.js";
@@ -18,11 +18,13 @@ import { Domicilios } from "../database/models/domicilios.model.js";
 import {
   getStudentQuery,
   typeRegisterQuery,
-} from "../queries/studentsQueries.js";
+} from "../queries/students.queries.js";
 
 import { getSpreedSheet, postSpreedSheet } from "../libs/spreedsheet.js";
 import { uploadBlobStorage } from "../libs/blobsAzure.js";
 import { areHideCharacters } from "../utils/hideCharacters.js";
+import { Matriculas } from "../database/models/matriculas.model.js";
+import { getAnnio } from "../utils/getAnnioControlNumber.js";
 
 export default class Students {
   constructor() {}
@@ -69,11 +71,14 @@ export default class Students {
   }
 
   async toCompleteInformationBody(body) {
-    const controlNumber = await this.generateNumberControl();
+    const { controlNumber, controlNumberAnnio } =
+      await this.generateNumberControl();
+    // Conexión futura a Tabla de matriculas.
     const dataCompleted = {
       ...body,
       fechaRegistro: datetime(),
       matricula: controlNumber,
+      annio: controlNumberAnnio,
     };
     return dataCompleted;
   }
@@ -83,7 +88,10 @@ export default class Students {
     const countRows = rows.length;
     const numberControl = rows[countRows - 1].get("matricula");
     const numberGenerate = parseInt(numberControl, 10) + 1;
-    return numberGenerate;
+    return {
+      controlNumber: numberGenerate,
+      controlNumberAnnio: getAnnio(numberGenerate),
+    };
   }
 
   async findForCurp(stringCURP) {
@@ -94,8 +102,20 @@ export default class Students {
 
   async addInscriptionNewStudent(infoInscription) {
     this.dbSaveNumberControl(infoInscription);
-    this.dbSaveRegister(infoInscription);
-    const sucessfullyRegister = this.inscription(infoInscription);
+    const resSave = await this.dbSaveRegister(infoInscription);
+    const objUpdate = {
+      ...infoInscription,
+      numero_matricula: resSave.matricula.numero_matricula,
+      fecha_nacimiento: resSave.estudiante.fecha_nacimiento,
+      apellido_paterno: resSave.estudiante.apellido_paterno,
+      apellido_materno: resSave.estudiante.apellido_materno,
+      sexo: resSave.estudiante.sexo,
+      municipio_alcaldia: resSave.domicilio.municipio_alcaldia,
+      comprobante_domicilio: resSave.domicilio.comprobante_domicilio,
+      escolaridad_comprobante: resSave.estudiante.escolaridad_comprobante,
+      acta_nacimiento: resSave.estudiante.acta_nacimiento,
+    };
+    const sucessfullyRegister = this.inscription(objUpdate);
     return sucessfullyRegister;
   }
 
@@ -105,8 +125,16 @@ export default class Students {
   }
 
   async dbSaveRegister(obj) {
-    const newObj = this.insertSheet(obj, sheetDatabase);
-    await postSpreedSheet(newObj);
+    const matricula = await Matriculas.create(Matriculas.conexionFields(obj));
+    const domicilio = await Domicilios.create(Domicilios.conexionFields(obj));
+    console.log("matriculas", matricula.id);
+    console.log("domicilios", domicilio.id);
+    //Create Empleos, Medio-Informacion and Socioeconomico before Estudiantes.
+    const estudiante = await Estudiantes.create(
+      Estudiantes.conexionFields(obj, matricula, domicilio)
+    );
+    console.log("estudiantes", estudiante.id);
+    return { matricula, domicilio, estudiante };
   }
 
   async inscription(obj) {
@@ -209,7 +237,10 @@ export default class Students {
 
     if (Object.keys(updateAdressValues).length > 0) {
       const { domicilio_id } = await this.getStudentDB(cleanObj.curp);
-      const cleanUpdateAddress = this.setNameAddress(cleanObj, updateAdressValues);
+      const cleanUpdateAddress = this.setNameAddress(
+        cleanObj,
+        updateAdressValues
+      );
       const [countAdress] = await Domicilios.update(cleanUpdateAddress, {
         where: { id: domicilio_id },
         limit: 1,

@@ -13,7 +13,7 @@ export const typeRegister = async (req = request, res = response, next) => {
   try {
     const { curp } = req.params;
     const student = await service.findTypeRegister(curp);
-    if (student === null) {
+    if (student === null || student === undefined) {
       res.json({ error: "CURP" });
     } else {
       const email =

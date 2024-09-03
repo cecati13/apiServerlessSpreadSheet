@@ -50,6 +50,7 @@ export class Domicilios extends Model {
       tableName: tablesDB.address,
       modelName: "Domicilios",
       timestamps: true,
+      timezone: '-06:00'
     };
   }
 
@@ -62,4 +63,16 @@ export class Domicilios extends Model {
     "estado",
     "comprobanteDomicilio",
   ];
+
+  static conexionFields(obj){
+    return {
+      calle: obj.calle,
+      numero: obj.numero,
+      colonia: obj.colonia,
+      municipio_alcaldia: obj.municipio,
+      cp: obj.cp,
+      estado: obj.estado,
+      comprobante_domicilio: obj.comprobanteDomicilio,
+    }
+  }
 }

@@ -56,6 +56,7 @@ export class Empleos extends Model {
       tableName: tablesDB.jobs,
       modelName: "Empleos",
       timestamps: true,
+      timezone: '-06:00'
     };
   }
 }

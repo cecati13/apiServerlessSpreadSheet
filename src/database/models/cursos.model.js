@@ -99,6 +99,7 @@ export class Cursos extends Model {
       tableName: tablesDB.courses,
       modelName: "Cursos",
       timestamps: true,
+      timezone: '-06:00'
     };
   }
 }

@@ -8,7 +8,7 @@ import {
   getAllUsersQuery,
   getUserForEmailQuery,
   updateUserQuery,
-} from "../queries/userQueries.js";
+} from "../queries/user.queries.js";
 
 const { models } = sequelize;
 

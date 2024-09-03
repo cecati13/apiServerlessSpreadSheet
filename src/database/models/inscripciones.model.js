@@ -98,6 +98,7 @@ export class Inscripciones extends Model {
       tableName: tablesDB.inscriptions,
       modelName: "Inscripciones",
       timestamps: true,
+      timezone: '-06:00'
     };
   }
 }

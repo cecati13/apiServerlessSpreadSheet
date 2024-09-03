@@ -24,6 +24,7 @@ import {
   getRegistrationRecord,
   postFileInf,
   deleteFiPdf,
+  deleteTableId,
 } from "../controller/controlStudentsController.js";
 
 const router = Router();
@@ -73,6 +74,12 @@ router.get(
   checkRole,
   getRegistrationRecord
 );
+
+router.delete("/tableId/:table",
+  passport.authenticate("jwt", { session: false }),
+  checkRole,
+  deleteTableId
+)
 
 router.get(
   "/file/:filename",

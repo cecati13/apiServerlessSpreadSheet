@@ -52,6 +52,7 @@ export class MediosInformacion extends Model {
       tableName: tablesDB.informationMedium,
       modelName: "MediosInformacion",
       timestamps: true,
+      timezone: '-06:00'
     };
   }
 }
