@@ -16,6 +16,7 @@ export const typeRegister = async (req = request, res = response, next) => {
     if (student === null || student === undefined) {
       res.json({ error: "CURP" });
     } else {
+      const updateContact = new Date(student.updatedAt) < new Date('2024-09-30');
       const email =
         student.email === null || student.email === undefined
           ? null
@@ -24,10 +25,12 @@ export const typeRegister = async (req = request, res = response, next) => {
         student.telefono === null || student.telefono === undefined
           ? null
           : hideCharactersPhone(student.telefono);
+          delete student.updatedAt;
       res.json({
         ...student,
         email,
         telefono,
+        updateContact
       });
     }
   } catch (error) {
@@ -61,13 +64,10 @@ export const inscription = async (req = request, res = response, next) => {
 
 export const dbStudent = async (req = request, res = response, next) => {
   try {
-    /**
-     * Descomentar cuando se hagan pruebas donde se puedan afectar los registros fake, para las pruebas con LA BD
-     */
-    // if (req.files.length > 0) {
-    //   const URLs = await service.uploadStorageDocs(req.files, req.body.curp);
-    //   req.body = mergeUrlsAndBody(URLs, req.body);
-    // }
+    if (req.files.length > 0) {
+      const URLs = await service.uploadStorageDocs(req.files, req.body.curp);
+      req.body = mergeUrlsAndBody(URLs, req.body);
+    }
     const update = await service.addInscriptionDBStudent(req.body);
     res.json(update);
   } catch (error) {

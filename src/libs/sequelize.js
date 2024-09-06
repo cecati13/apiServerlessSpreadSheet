@@ -10,7 +10,6 @@ const options = {
   dialectOptions: {
     dateStrings: true,
     typeCast: function (field, next) {
-      // Read format MySQL to JS
       if (field.type === "DATETIME") {
         return new Date(field.string() + "Z");
       }

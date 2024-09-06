@@ -20,7 +20,8 @@ export const EstudiantesSchema = {
   curp: {
     allowNull: false,
     unique: true,
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(18),
+    collate: 'utf8mb4_bin',
   },
   apellido_paterno: {
     allowNull: false,

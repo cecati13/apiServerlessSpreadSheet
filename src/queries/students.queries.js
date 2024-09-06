@@ -7,6 +7,7 @@ export const typeRegisterQuery = (curp) => {
     estudiantes.nombre, 
     estudiantes.email, 
     estudiantes.telefono, 
+    estudiantes.updatedAt,
     matriculas.numero_matricula AS matricula
     FROM estudiantes
     JOIN matriculas ON matriculas.id = estudiantes.matricula_id
@@ -30,4 +31,20 @@ export const getStudentQuery = (curp) => {
         JOIN domicilios ON domicilios.id = estudiantes.domicilio_id
         WHERE estudiantes.curp = "${curp}";
     `;
+};
+
+export const getVoucherStudent = (curp, kind) => {
+  return `
+    SELECT ${kind === 'estudios' ? 'escolaridad_comprobante' : 'acta_nacimiento'} AS name
+    FROM estudiantes WHERE curp = '${curp}';
+  `;
+};
+
+export const getVoucherAddress = (curp) => {
+  return `
+    SELECT domicilios.comprobante_domicilio AS name
+    FROM estudiantes 
+    JOIN domicilios ON domicilios.id = estudiantes.domicilio_id
+    WHERE curp = '${curp}';
+  `;
 };

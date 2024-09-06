@@ -17,6 +17,8 @@ import { Estudiantes } from "../database/models/estudiantes.model.js";
 import { Domicilios } from "../database/models/domicilios.model.js";
 import {
   getStudentQuery,
+  getVoucherAddress,
+  getVoucherStudent,
   typeRegisterQuery,
 } from "../queries/students.queries.js";
 
@@ -31,7 +33,7 @@ export default class Students {
 
   async findTypeRegister(stringCurp) {
     if (validateCURP(stringCurp)) {
-      return await this.findForCurp(stringCurp);
+      return await this.findForCurp(stringCurp.toUpperCase());
     } else {
       return { message: "Wrong Structure" };
     }
@@ -95,9 +97,8 @@ export default class Students {
   }
 
   async findForCurp(stringCURP) {
-    const [results] = await database.query(typeRegisterQuery(stringCURP));
+    const [results] = await database.query(typeRegisterQuery(stringCURP.toUpperCase()));
     return results[0];
-    //return await Estudiantes.findOne({ where: { curp: stringCURP } });
   }
 
   async addInscriptionNewStudent(infoInscription) {
@@ -195,13 +196,22 @@ export default class Students {
   }
 
   async getDataDB(stringCURP) {
-    const [results] = await database.query(getStudentQuery(stringCURP));
+    const [results] = await database.query(getStudentQuery(stringCURP.toUpperCase()));
+    return results[0];
+  }
+
+  async getVoucher(stringCURP, kind) {
+    const query =
+      kind === "domicilio"
+        ? getVoucherAddress(stringCURP.toUpperCase())
+        : getVoucherStudent(stringCURP.toUpperCase(), kind);
+    const [results] = await database.query(query);
     return results[0];
   }
 
   async getStudentDB(stringCURP) {
     return await Estudiantes.findOne({
-      where: { curp: stringCURP },
+      where: { curp: stringCURP.toUpperCase() },
       attributes: ["domicilio_id"],
     });
   }
@@ -211,7 +221,6 @@ export default class Students {
     const updates = [];
     const updateStudentsValues = {};
     const updateAdressValues = {};
-
     /**
      * Pendiente generar funciones para separar codigo
      */
@@ -228,7 +237,7 @@ export default class Students {
      */
     if (Object.keys(updateStudentsValues).length > 0) {
       const [countStudent] = await Estudiantes.update(updateStudentsValues, {
-        where: { curp: obj.curp },
+        where: { curp: cleanObj.curp },
         limit: 1,
         validate: true,
       });
