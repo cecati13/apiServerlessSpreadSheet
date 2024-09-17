@@ -27,4 +27,4 @@ export const sequelize = new Sequelize(
 
 setupModels(sequelize);
 
-sequelize.sync();
+// sequelize.sync({alter:true});

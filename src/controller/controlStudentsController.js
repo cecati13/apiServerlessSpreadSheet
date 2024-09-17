@@ -48,6 +48,20 @@ export const getRegistrationRecord = async (
   }
 };
 
+export const getInfoSISAE = async (req = request, res = response, next) => {
+  try {
+    const { matricula } = req.params;
+    if (matricula !== undefined) {
+      const students = await serviceControlStudents.getInfoSISAE(matricula);
+      res.json({ statusID: students });
+    } else {
+      res.json({ msg: "Undefined Values" });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const deleteTableId = async (req = request, res = response, next) => {
   try {
     const { table } = req.params;

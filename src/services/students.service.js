@@ -56,19 +56,9 @@ export default class Students {
         actaNacimientoRender: obj.actaNacimientoRender,
       };
     } else {
-      if (compareDigitVerifyCurp(userCURP, createCURP)) {
-        return {
-          curp: false,
-          datacurp: createCURP,
-          message: messageDuplicity,
-        };
-      } else {
-        return {
-          curp: false,
-          datacurp: createCURP,
-          message: messageErrorCurp,
-        };
-      }
+      return compareDigitVerifyCurp(userCURP, createCURP)
+        ? { curp: false, datacurp: createCURP, message: messageDuplicity }
+        : { curp: false, datacurp: createCURP, message: messageErrorCurp };
     }
   }
 
@@ -97,7 +87,9 @@ export default class Students {
   }
 
   async findForCurp(stringCURP) {
-    const [results] = await database.query(typeRegisterQuery(stringCURP.toUpperCase()));
+    const [results] = await database.query(
+      typeRegisterQuery(stringCURP.toUpperCase())
+    );
     return results[0];
   }
 
@@ -196,7 +188,9 @@ export default class Students {
   }
 
   async getDataDB(stringCURP) {
-    const [results] = await database.query(getStudentQuery(stringCURP.toUpperCase()));
+    const [results] = await database.query(
+      getStudentQuery(stringCURP.toUpperCase())
+    );
     return results[0];
   }
 

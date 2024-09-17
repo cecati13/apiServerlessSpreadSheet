@@ -14,7 +14,7 @@ export const typeRegister = async (req = request, res = response, next) => {
     const { curp } = req.params;
     const student = await service.findTypeRegister(curp);
     if (student === null || student === undefined) {
-      res.json({ error: "CURP" });
+      res.status(404).json({ message: "notFound" });
     } else {
       const updateContact = new Date(student.updatedAt) < new Date('2024-09-30');
       const email =

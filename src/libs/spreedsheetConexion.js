@@ -11,12 +11,10 @@ const serviceAccountAuth = new JWT({
   scopes: ["https://www.googleapis.com/auth/spreadsheets"],
 });
 
-
 function GSheetID(name) {
   if (
     name === nameSheet.sheetNumberControl ||
-    name === nameSheet.sheetInscriptions ||
-    name === nameSheet.sheetDatabase
+    name === nameSheet.sheetInscriptions
   ) {
     return config.idGoogleRegisterInscription;
   } else {
@@ -27,4 +25,4 @@ function GSheetID(name) {
 export const googleAuth = (name) => {
   const idSheet = GSheetID(name);
   return new GoogleSpreadsheet(idSheet, serviceAccountAuth);
-}
+};

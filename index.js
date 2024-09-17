@@ -21,4 +21,4 @@ app.use(logErrors);
 app.use(boomErrorHandler);
 app.use(errorHandler);
 
-http("APIv2", app);
+http("APIv3", app);

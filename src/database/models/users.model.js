@@ -13,7 +13,7 @@ export const UsersSchema = {
     unique: true,
     type: DataTypes.STRING,
   },
-  nombre_completo: {
+  nameComplete: {
     allowNull: false,
     type: DataTypes.STRING,
   },

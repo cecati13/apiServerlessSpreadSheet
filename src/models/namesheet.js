@@ -9,12 +9,10 @@ export const nameSheet = {
    */
   // sheetInscriptions: "preinscripciones",
   // sheetNumberControl: "matricula",
-  // sheetDatabase: "database",
 
   /**
    * DataBase temp DEV (Pruebas)
    */
   sheetNumberControl: "pruebaMatricula",
   sheetInscriptions: "pruebaPreinscripciones",
-  sheetDatabase: "databasePruebas",
 };

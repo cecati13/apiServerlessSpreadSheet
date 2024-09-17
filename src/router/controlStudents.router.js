@@ -25,6 +25,7 @@ import {
   postFileInf,
   deleteFiPdf,
   deleteTableId,
+  getInfoSISAE,
 } from "../controller/controlStudentsController.js";
 
 const router = Router();
@@ -73,6 +74,13 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   checkRole,
   getRegistrationRecord
+);
+
+router.get(
+  "/infosisae/:matricula",
+  passport.authenticate("jwt", { session: false }),
+  checkRole,
+  getInfoSISAE
 );
 
 router.delete("/tableId/:table",
