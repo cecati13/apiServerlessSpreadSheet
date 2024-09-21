@@ -96,7 +96,8 @@ export const getFile = async (req = request, res = response, next) => {
       throw Error("Not Found file");
     }
     const file = await getFileBlob(student.name, nameContainer.proof);
-    res.json(file);
+    const typeFile = student.name.split(".")[1];
+    res.json({file, typeFile});
   } catch (error) {
     next(error);
   }
