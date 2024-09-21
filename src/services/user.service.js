@@ -14,9 +14,7 @@ const { models } = sequelize;
 
 export const findUsers = async () => {
   try {
-    console.log(models);
     return models.Users.findAll();
-
     // const [results] = await (await database).execute(getAllUsersQuery);
     // return results;
   } catch (error) {
