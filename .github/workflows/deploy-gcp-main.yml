@@ -1,0 +1,56 @@
+name: Deploy to Google Cloud Functions V3 - PROD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          service_account_key: ${{ secrets.GCP_KEY }}
+          project_id: backend-cursos-cecati13
+
+      - name: Deploy to Cloud Functions
+        run: |
+          gcloud functions deploy API-V3 \
+            --gen2 \
+            --entry-point APIv3 \
+            --runtime nodejs22 \
+            --trigger-http \
+            --memory 256MiB \
+            --region us-east1 \
+            --allow-unauthenticated
+            --set-secrets \
+            CLIENT_EMAIL_GOOGLE=projects/776826070708/secrets/GOOGLE_CLIENT_EMAIL_GOOGLE/versions/latest \
+            PRIVATE_KEY_GOOGLE=projects/776826070708/secrets/GOOGLE_PRIVATE_KEY_GOOGLE/versions/latest \
+            ID_SHEET=projects/776826070708/secrets/ID_SHEET_COURSES/versions/latest \
+            ID_SHEET_REGISTER_INSCRIPTION=projects/776826070708/secrets/ID_SHEET_REGISTER_INSCRIPTION/versions/latest \
+            SECRET=projects/776826070708/secrets/SECRET_Backend/versions/latest \
+            AZURE_STORAGE_CONNECTION=projects/776826070708/secrets/AZURE_STORAGE_CONNECTION/versions/latest \
+            CLOUD_INSTANCE=projects/776826070708/secrets/MSAL_CLOUD_INSTANCE/versions/latest \
+            TENANT_ID=projects/776826070708/secrets/MSAL_TENANT_ID/versions/latest \
+            CLIENT_ID=projects/776826070708/secrets/MSAL_CLIENT_ID/versions/latest \
+            TENANT_NAME=projects/776826070708/secrets/MSAL_TENANT_NAME/versions/latest \
+            USER_DB=projects/776826070708/secrets/BD_USER_DB/versions/latest \
+            NAME_DB=projects/776826070708/secrets/DB_NAME_DB/versions/latest \
+            HOST_DB=projects/776826070708/secrets/DB_HOST_DB/versions/latest \
+            PASS_DB=projects/776826070708/secrets/DB_PASS_DB/versions/latest \
+            PORT_DB=projects/776826070708/secrets/DB_PORT_DB/versions/latest \
+            --set-env-vars \
+            DATE_FOR_CURP=0 \
+
+      - name: Configure ingress settings
+        run: |
+          gcloud functions add-iam-policy-binding API-V3 \
+            --region us-east1 \
+            --member="allUsers" \
+            --role="roles/cloudfunctions.invoker"
