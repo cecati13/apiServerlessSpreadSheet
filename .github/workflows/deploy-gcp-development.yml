@@ -1,4 +1,4 @@
-name: Deploy to Google Cloud Functions V2 - PROD
+name: Deploy to Google Cloud Functions V2 - DEV
 
 on:
   push:
@@ -8,17 +8,31 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Auht & Deploy Cloud Function
-        uses: google-github-actions/deploy-cloud-functions@v0.1.0
+      - name: Check out repo
+        uses: 'actions/checkout@v4'
+      
+      - name: auth
+        uses: 'google-github-actions/auth@v2'
         with:
-          name: API-V3-dev
-          runtime: nodejs22
-          credentials: ${{ secrets.GCP_KEY }}
+          credentials_json: ${{ secrets.GCP_KEY }}
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+
+      - name: 'Use gcloud CLI'
+        run: 'gcloud info'
+
+      - id: 'deploy'
+        uses: 'google-github-actions/deploy-cloud-functions@v3'
+        timeout-minutes: 10
+        with:
+          name: 'API-V3-dev'
+          runtime: 'nodejs22'
 
       - name: Deploy to Cloud Functions
         run: |
