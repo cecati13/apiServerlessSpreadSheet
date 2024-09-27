@@ -53,7 +53,7 @@ export const getInfoSISAE = async (req = request, res = response, next) => {
     const { matricula } = req.params;
     if (matricula !== undefined) {
       const students = await serviceControlStudents.getInfoSISAE(matricula);
-      res.json({ ...students });
+      res.json({ students });
     } else {
       res.json({ msg: "Undefined Values" });
     }
