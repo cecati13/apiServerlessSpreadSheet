@@ -5,7 +5,7 @@
       "type": "cloudcode.cloudfunctions",
       "request": "launch",
       // "functionName": "API-V3",
-      "functionName": "API-V3-dev-1",
+      "functionName": "API-V3",
       "gen": "GEN_2",
       "entryPoint": "APIv3",
       "revision": "1",
