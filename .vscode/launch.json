@@ -1,16 +1,17 @@
 {
-    "configurations": [
-      {
-        "name": "Deploy Cloud Function",
-        "type": "cloudcode.cloudfunctions",
-        "request": "launch",
-        "functionName": "API-V2",
-        "gen": "GEN_2",
-        "entryPoint": "APIv2",
-        "revision": "1",
-        "testInput": "",
-        "region": "us-east1",
-        "runtime": "nodejs22"
-      }
-    ]
+  "configurations": [
+    {
+      "name": "Deploy Cloud Function",
+      "type": "cloudcode.cloudfunctions",
+      "request": "launch",
+      // "functionName": "API-V3",
+      "functionName": "API-V3",
+      "gen": "GEN_2",
+      "entryPoint": "APIv3",
+      "revision": "1",
+      "testInput": "",
+      "region": "us-east1",
+      "runtime": "nodejs22"
+    }
+  ]
 }

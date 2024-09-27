@@ -9,24 +9,31 @@ import {
 import { datetime } from "../utils/date.js";
 
 import { nameSheet } from "../models/namesheet.js";
-const { sheetDatabase, sheetInscriptions, sheetNumberControl } = nameSheet;
-import { JSONResponse, JSONgetDB } from "../models/JSONResponse.js";
+const { sheetInscriptions, sheetNumberControl } = nameSheet;
 import { nameContainer } from "../models/containerAzure.js";
 
+import { database } from "../database/mysql.js";
+import { Estudiantes } from "../database/models/estudiantes.model.js";
+import { Domicilios } from "../database/models/domicilios.model.js";
 import {
-  getSpreedSheet,
-  postSpreedSheet,
-  updateSpreedSheet,
-} from "../libs/spreedsheet.js";
+  getStudentQuery,
+  getVoucherAddress,
+  getVoucherStudent,
+  typeRegisterQuery,
+} from "../queries/students.queries.js";
+
+import { getSpreedSheet, postSpreedSheet } from "../libs/spreedsheet.js";
 import { uploadBlobStorage } from "../libs/blobsAzure.js";
 import { areHideCharacters } from "../utils/hideCharacters.js";
+import { Matriculas } from "../database/models/matriculas.model.js";
+import { getAnnio } from "../utils/getAnnioControlNumber.js";
 
 export default class Students {
   constructor() {}
 
   async findTypeRegister(stringCurp) {
     if (validateCURP(stringCurp)) {
-      return await this.findForCurp(stringCurp);
+      return await this.findForCurp(stringCurp.toUpperCase());
     } else {
       return { message: "Wrong Structure" };
     }
@@ -49,28 +56,21 @@ export default class Students {
         actaNacimientoRender: obj.actaNacimientoRender,
       };
     } else {
-      if (compareDigitVerifyCurp(userCURP, createCURP)) {
-        return {
-          curp: false,
-          datacurp: createCURP,
-          message: messageDuplicity,
-        };
-      } else {
-        return {
-          curp: false,
-          datacurp: createCURP,
-          message: messageErrorCurp,
-        };
-      }
+      return compareDigitVerifyCurp(userCURP, createCURP)
+        ? { curp: false, datacurp: createCURP, message: messageDuplicity }
+        : { curp: false, datacurp: createCURP, message: messageErrorCurp };
     }
   }
 
   async toCompleteInformationBody(body) {
-    const controlNumber = await this.generateNumberControl();
+    const { controlNumber, controlNumberAnnio } =
+      await this.generateNumberControl();
+    // Conexión futura a Tabla de matriculas.
     const dataCompleted = {
       ...body,
       fechaRegistro: datetime(),
       matricula: controlNumber,
+      annio: controlNumberAnnio,
     };
     return dataCompleted;
   }
@@ -80,22 +80,35 @@ export default class Students {
     const countRows = rows.length;
     const numberControl = rows[countRows - 1].get("matricula");
     const numberGenerate = parseInt(numberControl, 10) + 1;
-    return numberGenerate;
+    return {
+      controlNumber: numberGenerate,
+      controlNumberAnnio: getAnnio(numberGenerate),
+    };
   }
 
   async findForCurp(stringCURP) {
-    const rows = await getSpreedSheet(sheetDatabase);
-    const data = rows.filter((column) => {
-      const value = column.get("curp").toUpperCase();
-      return value.includes(stringCURP);
-    });
-    return data.length > 0 ? JSONResponse(data) : { error: "CURP" };
+    const [results] = await database.query(
+      typeRegisterQuery(stringCURP.toUpperCase())
+    );
+    return results[0];
   }
 
   async addInscriptionNewStudent(infoInscription) {
     this.dbSaveNumberControl(infoInscription);
-    this.dbSaveRegister(infoInscription);
-    const sucessfullyRegister = this.inscription(infoInscription);
+    const resSave = await this.dbSaveRegister(infoInscription);
+    const objUpdate = {
+      ...infoInscription,
+      numero_matricula: resSave.matricula.numero_matricula,
+      fecha_nacimiento: resSave.estudiante.fecha_nacimiento,
+      apellido_paterno: resSave.estudiante.apellido_paterno,
+      apellido_materno: resSave.estudiante.apellido_materno,
+      sexo: resSave.estudiante.sexo,
+      municipio_alcaldia: resSave.domicilio.municipio_alcaldia,
+      comprobante_domicilio: resSave.domicilio.comprobante_domicilio,
+      escolaridad_comprobante: resSave.estudiante.escolaridad_comprobante,
+      acta_nacimiento: resSave.estudiante.acta_nacimiento,
+    };
+    const sucessfullyRegister = this.inscription(objUpdate);
     return sucessfullyRegister;
   }
 
@@ -105,15 +118,27 @@ export default class Students {
   }
 
   async dbSaveRegister(obj) {
-    const newObj = this.insertSheet(obj, sheetDatabase);
-    await postSpreedSheet(newObj);
+    const matricula = await Matriculas.create(Matriculas.conexionFields(obj));
+    const domicilio = await Domicilios.create(Domicilios.conexionFields(obj));
+    console.log("matriculas", matricula.id);
+    console.log("domicilios", domicilio.id);
+    //Create Empleos, Medio-Informacion and Socioeconomico before Estudiantes.
+    const estudiante = await Estudiantes.create(
+      Estudiantes.conexionFields(obj, matricula, domicilio)
+    );
+    console.log("estudiantes", estudiante.id);
+    return { matricula, domicilio, estudiante };
   }
 
   async inscription(obj) {
-    const newObj = this.insertSheet(obj, sheetInscriptions);
+    const newObj = this.insertSheet(
+      { ...obj, fechaRegistro: datetime() },
+      sheetInscriptions
+    );
     await postSpreedSheet(newObj);
     //sucessfulyRegister indica si se hizo el registro en SpreedSheet
     const sucessfullyRegister = this.verifyLastRegistration(obj);
+    //mandar correo electronico de confirmación de inscripcion.
     return sucessfullyRegister;
   }
 
@@ -128,67 +153,130 @@ export default class Students {
     const lastInscriptionCurp = rows[countRows - 1].get("curp");
     const res = {
       status: lastInscriptionCurp === infoInscription.curp,
-      matricula: infoInscription.matricula,
-      fechaRegistro: infoInscription.fechaRegistro,
+      matricula: infoInscription.numero_matricula,
     };
     return res;
   }
 
   /**
-   * 
+   *
    * @param {object} body - Contains student information, selected course. "update": boolean (optional), and "indexR" field for the DB
    * @param {boolean} body.update - boolean (optional)
-   * @param {string} body.indexR - string. DB SpreedSheet search field   * 
+   * @param {string} body.indexR - string. DB SpreedSheet search field   *
    * @returns {{
-   *  status: boolean, 
-   *  update: boolean, 
-   *  matricula: string, 
+   *  status: boolean,
+   *  update: boolean,
+   *  matricula: string,
    *  fechaRegistro: string
    * }}  - Inscription Completed
    */
   async addInscriptionDBStudent(body) {
     if (body.update) {
-      const bodyWithDatetime = {
-        ...body,
-        fechaRegistro: datetime(),
-      };
-      const updated = await this.updateDBStudent(bodyWithDatetime);
+      const updated = await this.updateDBStudent(body);
       //confirmamos que se actualizo la informacion
-      body.update = updated.updated;
+      body.update = updated;
     }
-    delete body.matricula;
-    delete body.a_paterno;
-    delete body.a_materno;
-    delete body.nombre;
-    delete body.telefono;
-    delete body.email;
     const data = await this.getDataDB(body.curp);
-    const newObj = { ...body, ...data, fechaRegistro: datetime() };
-    //Reassignmos timestampt  que viene del Registro de BD al actual
+    const newObj = { ...body, ...data };
     const sucessfullyRegister = await this.inscription(newObj);
     return {
       ...sucessfullyRegister,
+      //temporal. Hasta el uso de la Tabla Inscripciones
+      fechaRegistro: datetime(),
       update: newObj.update,
     };
   }
 
   async getDataDB(stringCURP) {
-    const rows = await getSpreedSheet(sheetDatabase);
-    const data = rows.filter((column) => {
-      const value = column.get("curp").toUpperCase();
-      return value.includes(stringCURP);
+    const [results] = await database.query(
+      getStudentQuery(stringCURP.toUpperCase())
+    );
+    return results[0];
+  }
+
+  async getVoucher(stringCURP, kind) {
+    const query =
+      kind === "domicilio"
+        ? getVoucherAddress(stringCURP.toUpperCase())
+        : getVoucherStudent(stringCURP.toUpperCase(), kind);
+    const [results] = await database.query(query);
+    return results[0];
+  }
+
+  async getStudentDB(stringCURP) {
+    return await Estudiantes.findOne({
+      where: { curp: stringCURP.toUpperCase() },
+      attributes: ["domicilio_id"],
     });
-    return JSONgetDB(data);
   }
 
   async updateDBStudent(obj) {
-    const filterPhoneAndNumber = areHideCharacters(obj);
-    const newObj = this.insertSheet(filterPhoneAndNumber, sheetDatabase);
-    const updated = await updateSpreedSheet(newObj);
+    const cleanObj = areHideCharacters(obj);
+    const updates = [];
+    const updateStudentsValues = {};
+    const updateAdressValues = {};
+    /**
+     * Pendiente generar funciones para separar codigo
+     */
+    Object.keys(cleanObj).forEach((key) => {
+      if (Estudiantes.fieldsUpdateForStudent.includes(key)) {
+        updateStudentsValues[key] = cleanObj[key];
+      } else if (Domicilios.fieldsUpdateForStudent.includes(key)) {
+        updateAdressValues[key] = cleanObj[key];
+      }
+    });
+    /**
+     * Falta verificar todos los nombres de los campos que pueden llegar a ser actualizados
+     * pendientes los datos de escolaridad
+     */
+    if (Object.keys(updateStudentsValues).length > 0) {
+      const [countStudent] = await Estudiantes.update(updateStudentsValues, {
+        where: { curp: cleanObj.curp },
+        limit: 1,
+        validate: true,
+      });
+      updates.push(countStudent);
+    }
+
+    if (Object.keys(updateAdressValues).length > 0) {
+      const { domicilio_id } = await this.getStudentDB(cleanObj.curp);
+      const cleanUpdateAddress = this.setNameAddress(
+        cleanObj,
+        updateAdressValues
+      );
+      const [countAdress] = await Domicilios.update(cleanUpdateAddress, {
+        where: { id: domicilio_id },
+        limit: 1,
+        validate: true,
+        fields: Object.keys(cleanUpdateAddress),
+      });
+      updates.push(countAdress);
+    }
     return {
-      updated: updated,
+      updated: updates.every((item) => item === 1),
     };
   }
+
+  setNameAddress(inscriptionData, updatableValues) {
+    if (updatableValues.municipio) {
+      Object.defineProperty(updatableValues, "municipio_alcaldia", {
+        value: inscriptionData.municipio,
+        configurable: true,
+        enumerable: true,
+        writable: true,
+      });
+    }
+    if (updatableValues.comprobanteDomicilio) {
+      Object.defineProperty(updatableValues, "comprobante_domicilio", {
+        value: inscriptionData.comprobanteDomicilio,
+        configurable: true,
+        enumerable: true,
+        writable: true,
+      });
+    }
+    return updatableValues;
+  }
+
   /**
    *
    * @param {File[]} files - An Array of binary files to be uploaded

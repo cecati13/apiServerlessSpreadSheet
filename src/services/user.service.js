@@ -1,18 +1,22 @@
 import { internal } from "@hapi/boom";
 import { database } from "../database/mysql.js";
 import { roles } from "../models/tablesDB.model.js";
+import { sequelize } from "../libs/sequelize.js";
 import {
   createUserDefaultQuery,
   deleteUserQuery,
   getAllUsersQuery,
   getUserForEmailQuery,
   updateUserQuery,
-} from "../queries/userQueries.js";
+} from "../queries/user.queries.js";
+
+const { models } = sequelize;
 
 export const findUsers = async () => {
   try {
-    const [results] = await (await database).execute(getAllUsersQuery);
-    return results;
+    return models.Users.findAll();
+    // const [results] = await (await database).execute(getAllUsersQuery);
+    // return results;
   } catch (error) {
     throw internal(error);
   }
