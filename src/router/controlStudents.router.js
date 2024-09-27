@@ -83,11 +83,12 @@ router.get(
   getInfoSISAE
 );
 
-router.delete("/tableId/:table",
+router.delete(
+  "/tableId/:table",
   passport.authenticate("jwt", { session: false }),
   checkRole,
   deleteTableId
-)
+);
 
 router.get(
   "/file/:filename",

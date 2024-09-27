@@ -18,7 +18,6 @@ export const getInfoSISAEQuery = (matricula) => {
     FROM matriculas 
     JOIN estudiantes ON estudiantes.matricula_id = matriculas.id  
     JOIN domicilios ON domicilios.id = estudiantes.domicilio_id
-    WHERE matriculas.numero_matricula >= ${matricula}
+    WHERE matriculas.numero_matricula > ${matricula}
     ORDER BY matriculas.numero_matricula;`;
 };
-

@@ -53,7 +53,7 @@ export const getInfoSISAE = async (req = request, res = response, next) => {
     const { matricula } = req.params;
     if (matricula !== undefined) {
       const students = await serviceControlStudents.getInfoSISAE(matricula);
-      res.json({ statusID: students });
+      res.json({ ...students });
     } else {
       res.json({ msg: "Undefined Values" });
     }
@@ -97,7 +97,7 @@ export const getFile = async (req = request, res = response, next) => {
     }
     const file = await getFileBlob(student.name, nameContainer.proof);
     const typeFile = student.name.split(".")[1];
-    res.json({file, typeFile});
+    res.json({ file, typeFile });
   } catch (error) {
     next(error);
   }
