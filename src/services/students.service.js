@@ -16,6 +16,7 @@ import { database } from "../database/mysql.js";
 import { Estudiantes } from "../database/models/estudiantes.model.js";
 import { Domicilios } from "../database/models/domicilios.model.js";
 import {
+  getStudentNumberControlQuery,
   getStudentQuery,
   getVoucherAddress,
   getVoucherStudent,
@@ -190,6 +191,13 @@ export default class Students {
   async getDataDB(stringCURP) {
     const [results] = await database.query(
       getStudentQuery(stringCURP.toUpperCase())
+    );
+    return results[0];
+  }
+  
+  async getDataNControlDB(numberControl) {
+    const [results] = await database.query(
+      getStudentNumberControlQuery(Number(numberControl))
     );
     return results[0];
   }
