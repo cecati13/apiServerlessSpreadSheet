@@ -5,7 +5,6 @@ import { sequelize } from "../libs/sequelize.js";
 import {
   createUserDefaultQuery,
   deleteUserQuery,
-  getAllUsersQuery,
   getUserForEmailQuery,
   updateUserQuery,
 } from "../queries/user.queries.js";
@@ -15,8 +14,6 @@ const { models } = sequelize;
 export const findUsers = async () => {
   try {
     return models.Users.findAll();
-    // const [results] = await (await database).execute(getAllUsersQuery);
-    // return results;
   } catch (error) {
     throw internal(error);
   }
@@ -40,6 +37,7 @@ export const findOneUser = async (username) => {
 export const addUserDefault = async (body) => {
   try {
     const { upn: email, name: nameComplete, given_name: username } = body;
+    const date = new Date();
     const [result] = await (
       await database
     ).execute(createUserDefaultQuery, [
@@ -47,6 +45,8 @@ export const addUserDefault = async (body) => {
       nameComplete,
       roles.notFunctions,
       username,
+      date,
+      date,
     ]);
     return result.affectedRows;
   } catch (error) {

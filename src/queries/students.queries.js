@@ -33,6 +33,24 @@ export const getStudentQuery = (curp) => {
     `;
 };
 
+export const getStudentNumberControlQuery = (numberControl) => {
+  return `
+        SELECT 
+        estudiantes.*,
+        matriculas.numero_matricula,
+        domicilios.calle,
+        domicilios.colonia,
+        domicilios.municipio_alcaldia,
+        domicilios.cp,
+        domicilios.estado,
+        domicilios.comprobante_domicilio
+        FROM matriculas
+        JOIN estudiantes ON estudiantes.matricula_id = matriculas.id
+        JOIN domicilios ON domicilios.id = estudiantes.domicilio_id
+        WHERE matriculas.numero_matricula = ${numberControl};
+    `;
+};
+
 export const getVoucherStudent = (curp, kind) => {
   return `
     SELECT ${kind === 'estudios' ? 'escolaridad_comprobante' : 'acta_nacimiento'} AS name

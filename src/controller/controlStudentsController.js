@@ -36,12 +36,21 @@ export const getRegistrationRecord = async (
   next
 ) => {
   try {
-    const { user } = req.query;
+    const { user, numberControl } = req.query;
     if (user) {
       const studentRecord = await serviceStudents.getDataDB(user);
-      res.json({ studentRecord });
+      studentRecord === undefined
+        ? res.status(404).json({ msg: "No existe" })
+        : res.json({ studentRecord });
+    } else if (numberControl) {
+      const studentRecord = await serviceStudents.getDataNControlDB(
+        numberControl
+      );
+      studentRecord === undefined
+        ? res.status(404).json({ msg: "No existe" })
+        : res.json({ studentRecord });
     } else {
-      res.json({ msg: "not User" });
+      res.status(404).json({ msg: "No existe" });
     }
   } catch (error) {
     next(error);
@@ -93,11 +102,12 @@ export const getFile = async (req = request, res = response, next) => {
     const { type } = req.query;
     const student = await serviceStudents.getVoucher(filename, type);
     if (student === undefined || student.name === null) {
-      throw Error("Not Found file");
+      res.status(404).json({ msg: "No existe en el sistema" });
+    } else {
+      const file = await getFileBlob(student.name, nameContainer.proof);
+      const typeFile = student.name.split(".")[1];
+      res.json({ file, typeFile });
     }
-    const file = await getFileBlob(student.name, nameContainer.proof);
-    const typeFile = student.name.split(".")[1];
-    res.json({ file, typeFile });
   } catch (error) {
     next(error);
   }
