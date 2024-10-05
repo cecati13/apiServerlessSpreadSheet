@@ -12,9 +12,9 @@ export default class ControlStudents {
     return response.affectedRows;
   }
 
-  async getInfoSISAE(matricula) {
+  async getInfoSISAE(matricula, limit) {
     const [response] = await database.query(
-      getInfoSISAEQuery(Number(matricula))
+      getInfoSISAEQuery(Number(matricula), limit)
     );
     return response;
   }

@@ -13,6 +13,8 @@ import { nameContainer } from "../models/containerAzure.js";
 const serviceStudents = new Students();
 const serviceControlStudents = new ControlStudents();
 
+const limitShowRecords = 30;
+
 //query parameter "user" para la curp. Example: /listBlobs/comprobantes?CURPSTUDENT
 //container = "informacion" or "comprobantes"
 export const getListBlobs = async (req = request, res = response, next) => {
@@ -61,8 +63,18 @@ export const getInfoSISAE = async (req = request, res = response, next) => {
   try {
     const { matricula } = req.params;
     if (matricula !== undefined) {
-      const students = await serviceControlStudents.getInfoSISAE(matricula);
-      res.json({ students });
+      const response = { msg: "", students: [] };
+      const students = await serviceControlStudents.getInfoSISAE(
+        matricula,
+        limitShowRecords
+      );
+      if (students.length === 0) {
+        response.msg = "No existe información";
+      } else if (students.length >= limitShowRecords) {
+        response.msg = `Mostrando solamente ${limitShowRecords} registros a partir de la matricula: ${matricula}`;
+      }
+      response.students = students;
+      res.json(response);
     } else {
       res.json({ msg: "Undefined Values" });
     }
