@@ -95,7 +95,7 @@ export default class Students {
   }
 
   async addInscriptionNewStudent(infoInscription) {
-    this.dbSaveNumberControl(infoInscription);
+    await this.spreedSheetSaveNumberControl(infoInscription);
     const resSave = await this.dbSaveRegister(infoInscription);
     const objUpdate = {
       ...infoInscription,
@@ -113,21 +113,18 @@ export default class Students {
     return sucessfullyRegister;
   }
 
-  async dbSaveNumberControl(obj) {
-    const newObj = this.insertSheet(obj, sheetNumberControl);
+  async spreedSheetSaveNumberControl(obj) {
+    const newObj = await this.insertSheet(obj, sheetNumberControl);
     await postSpreedSheet(newObj);
   }
 
   async dbSaveRegister(obj) {
     const matricula = await Matriculas.create(Matriculas.conexionFields(obj));
     const domicilio = await Domicilios.create(Domicilios.conexionFields(obj));
-    console.log("matriculas", matricula.id);
-    console.log("domicilios", domicilio.id);
     //Create Empleos, Medio-Informacion and Socioeconomico before Estudiantes.
     const estudiante = await Estudiantes.create(
       Estudiantes.conexionFields(obj, matricula, domicilio)
     );
-    console.log("estudiantes", estudiante.id);
     return { matricula, domicilio, estudiante };
   }
 
@@ -138,7 +135,7 @@ export default class Students {
     );
     await postSpreedSheet(newObj);
     //sucessfulyRegister indica si se hizo el registro en SpreedSheet
-    const sucessfullyRegister = this.verifyLastRegistration(obj);
+    const sucessfullyRegister = await this.verifyLastRegistration(obj);
     //mandar correo electronico de confirmación de inscripcion.
     return sucessfullyRegister;
   }
@@ -194,7 +191,7 @@ export default class Students {
     );
     return results[0];
   }
-  
+
   async getDataNControlDB(numberControl) {
     const [results] = await database.query(
       getStudentNumberControlQuery(Number(numberControl))
