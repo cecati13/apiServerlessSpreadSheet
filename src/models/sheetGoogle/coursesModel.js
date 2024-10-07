@@ -15,6 +15,7 @@ export function coursesModel(rows) {
             horas: column.get('horas'),
             tipo_de_curso: column.get('tipo_de_curso'),
             modalidad_curso: column.get('modalidad_curso'),
+            annio_course: column.get('annio'),
             observaciones: column.get('observaciones'),
             imagenURL: column.get('imagenURL'),
             ficha_informacion: column.get('ficha_informacion'),
